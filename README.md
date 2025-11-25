@@ -1,5 +1,9 @@
 # Cloak for Laravel
 
+<p align="center">
+  <img src="cloak-laravel.png" alt="Cloak for Laravel" width="600">
+</p>
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/dynamikdev/cloak-laravel.svg?style=flat-square)](https://packagist.org/packages/dynamikdev/cloak-laravel)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/dynamik-dev/cloak-laravel/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/dynamik-dev/cloak-laravel/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/dynamikdev/cloak-laravel.svg?style=flat-square)](https://packagist.org/packages/dynamikdev/cloak-laravel)
