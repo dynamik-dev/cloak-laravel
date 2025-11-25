@@ -1,6 +1,8 @@
 # Composer Related
 composer.lock
 /vendor
+.claude
+CLAUDE.md
 
 # Frontend Assets
 /node_modules
