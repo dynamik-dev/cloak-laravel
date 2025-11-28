@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "dynamik-dev/cloak-php": "^0.1",
+        "dynamik-dev/cloak-php": "^0.2",
         "spatie/laravel-package-tools": "^1.16",
         "illuminate/contracts": "^10.0||^11.0||^12.0",
         "illuminate/support": "^10.0||^11.0||^12.0"
@@ -40,10 +40,7 @@
     "autoload": {
         "psr-4": {
             "DynamikDev\\Cloak\\Laravel\\": "src/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {

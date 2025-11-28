@@ -68,13 +68,15 @@ return [
 
 ### Encryption at Rest
 
-All sensitive data is encrypted using Laravel's `Crypt` facade before being stored, regardless of which storage driver is used. This provides defense in depth—even if memory or cache is compromised, the original PII remains protected.
+This Laravel adapter integrates with cloak-php v0.2.0's encryption system using Laravel's `Crypt` facade. All sensitive data is encrypted before being stored, providing defense in depth—even if memory or cache is compromised, the original PII remains protected.
+
+The encryption is handled through a custom `LaravelEncryptor` that implements cloak-php's `EncryptorInterface`, using Laravel's built-in encryption for seamless integration with your application's `APP_KEY`.
 
 ### Persist Mode
 
-- **`persist: false`** (default) - Encrypted in-memory storage. Perfect for single-request flows where you cloak → call LLM → uncloak in one request. Data is automatically garbage collected.
+- **`persist: false`** (default) - In-memory storage with encryption. Perfect for single-request flows where you cloak → call LLM → uncloak in one request. Data is automatically garbage collected when the request ends.
 
-- **`persist: true`** - Encrypted Laravel cache. Use this when you need to uncloak in a different request (e.g., webhook responses, queued jobs).
+- **`persist: true`** - Laravel cache storage with encryption. Use this when you need to uncloak in a different request (e.g., webhook responses, queued jobs). TTL is configurable via `default_ttl`.
 
 ## Usage
 
@@ -268,6 +270,62 @@ class LogSafeRequests
 ```bash
 composer test
 ```
+
+## Version Compatibility
+
+This package has been updated to work with **cloak-php v0.2.0**, which includes:
+
+- New builder pattern API for configuring Cloak instances
+- Pluggable encryption system via `EncryptorInterface`
+- Enhanced lifecycle hooks and filtering capabilities
+- Simplified storage interface (TTL handling moved to storage implementations)
+
+### What Changed in v0.2.0
+
+**Architecture improvements:**
+- Now uses cloak-php's `ArrayStore` for in-memory storage (instead of custom `EncryptedArrayStorage`)
+- Implements a `LaravelEncryptor` that integrates with Laravel's `Crypt` facade
+- Service provider uses the builder pattern: `Cloak::using($store)->withEncryptor($encryptor)`
+- Uses `Cloak::resolveUsing()` to integrate with Laravel's container
+- Helper functions now provided by core package (Laravel-specific helpers removed)
+- TTL configuration is Laravel-specific and handled within `CacheStorage` constructor
+
+**Container Binding Strategy (Octane-safe):**
+- `Cloak` instances use `bind()` - fresh instance on every resolution (prevents state pollution)
+- `StoreInterface` uses `singleton()` - shared storage for placeholder mappings
+- `EncryptorInterface` uses `singleton()` - stateless encryption service
+
+This architecture prevents issues with filters, callbacks, and other stateful configurations, especially in Laravel Octane environments where state can leak between requests.
+
+**Breaking changes from previous versions:**
+- `EncryptedArrayStorage` class has been removed (now uses core `ArrayStore` with `LaravelEncryptor`)
+- `StoreInterface::put()` no longer accepts `$ttl` parameter (moved to storage implementation constructor)
+- Laravel-specific helper functions removed (now uses core package helpers via resolver)
+
+The package maintains backward compatibility at the API level—all helpers, facades, and configuration options work the same way for end users.
+
+### Advanced Usage: Extending Cloak
+
+The resolver pattern allows developers to customize Cloak behavior through the container:
+
+```php
+// In your AppServiceProvider
+use DynamikDev\Cloak\Cloak;
+use DynamikDev\Cloak\Detector;
+
+$this->app->extend(Cloak::class, function ($cloak, $app) {
+    return $cloak->withDetectors([
+        Detector::email(),
+        Detector::phone('US'),
+        // Add your custom detectors
+    ])->filter(function ($detection) {
+        // Filter out test emails
+        return !str_ends_with($detection['match'], '@test.local');
+    });
+});
+```
+
+Each call to `cloak()` or `app(Cloak::class)` gets a fresh instance with your customizations, preventing state pollution across requests.
 
 ## Changelog
 
