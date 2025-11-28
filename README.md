@@ -27,6 +27,7 @@ $original = uncloak($safe);
 When building AI-powered features, user messages often contain sensitive information—emails, phone numbers, SSNs, credit cards. Sending this data to third-party LLM APIs creates privacy and compliance risks.
 
 Cloak solves this by:
+
 1. **Detecting** PII using built-in or custom detectors
 2. **Replacing** sensitive data with placeholder tokens
 3. **Storing** the mapping temporarily (in-memory or cache)
@@ -37,7 +38,7 @@ The LLM never sees the actual PII, but your users get personalized responses.
 ## Installation
 
 ```bash
-composer require dynamikdev/cloak-laravel
+composer require dynamik-dev/cloak-laravel
 ```
 
 Optionally publish the config file:
@@ -74,9 +75,9 @@ The encryption is handled through a custom `LaravelEncryptor` that implements cl
 
 ### Persist Mode
 
-- **`persist: false`** (default) - In-memory storage with encryption. Perfect for single-request flows where you cloak → call LLM → uncloak in one request. Data is automatically garbage collected when the request ends.
+-   **`persist: false`** (default) - In-memory storage with encryption. Perfect for single-request flows where you cloak → call LLM → uncloak in one request. Data is automatically garbage collected when the request ends.
 
-- **`persist: true`** - Laravel cache storage with encryption. Use this when you need to uncloak in a different request (e.g., webhook responses, queued jobs). TTL is configurable via `default_ttl`.
+-   **`persist: true`** - Laravel cache storage with encryption. Use this when you need to uncloak in a different request (e.g., webhook responses, queued jobs). TTL is configurable via `default_ttl`.
 
 ## Usage
 
@@ -156,11 +157,11 @@ public function chat(Request $request)
 
 Cloak automatically detects:
 
-| Type | Example | Placeholder |
-|------|---------|-------------|
-| Email | `john@example.com` | `{{EMAIL_x1y2z3_1}}` |
-| Phone | `555-123-4567` | `{{PHONE_x1y2z3_1}}` |
-| SSN | `123-45-6789` | `{{SSN_x1y2z3_1}}` |
+| Type        | Example               | Placeholder                |
+| ----------- | --------------------- | -------------------------- |
+| Email       | `john@example.com`    | `{{EMAIL_x1y2z3_1}}`       |
+| Phone       | `555-123-4567`        | `{{PHONE_x1y2z3_1}}`       |
+| SSN         | `123-45-6789`         | `{{SSN_x1y2z3_1}}`         |
 | Credit Card | `4111-1111-1111-1111` | `{{CREDIT_CARD_x1y2z3_1}}` |
 
 By default, all detectors run. To use specific detectors:
@@ -275,32 +276,35 @@ composer test
 
 This package has been updated to work with **cloak-php v0.2.0**, which includes:
 
-- New builder pattern API for configuring Cloak instances
-- Pluggable encryption system via `EncryptorInterface`
-- Enhanced lifecycle hooks and filtering capabilities
-- Simplified storage interface (TTL handling moved to storage implementations)
+-   New builder pattern API for configuring Cloak instances
+-   Pluggable encryption system via `EncryptorInterface`
+-   Enhanced lifecycle hooks and filtering capabilities
+-   Simplified storage interface (TTL handling moved to storage implementations)
 
 ### What Changed in v0.2.0
 
 **Architecture improvements:**
-- Now uses cloak-php's `ArrayStore` for in-memory storage (instead of custom `EncryptedArrayStorage`)
-- Implements a `LaravelEncryptor` that integrates with Laravel's `Crypt` facade
-- Service provider uses the builder pattern: `Cloak::using($store)->withEncryptor($encryptor)`
-- Uses `Cloak::resolveUsing()` to integrate with Laravel's container
-- Helper functions now provided by core package (Laravel-specific helpers removed)
-- TTL configuration is Laravel-specific and handled within `CacheStorage` constructor
+
+-   Now uses cloak-php's `ArrayStore` for in-memory storage (instead of custom `EncryptedArrayStorage`)
+-   Implements a `LaravelEncryptor` that integrates with Laravel's `Crypt` facade
+-   Service provider uses the builder pattern: `Cloak::using($store)->withEncryptor($encryptor)`
+-   Uses `Cloak::resolveUsing()` to integrate with Laravel's container
+-   Helper functions now provided by core package (Laravel-specific helpers removed)
+-   TTL configuration is Laravel-specific and handled within `CacheStorage` constructor
 
 **Container Binding Strategy (Octane-safe):**
-- `Cloak` instances use `bind()` - fresh instance on every resolution (prevents state pollution)
-- `StoreInterface` uses `singleton()` - shared storage for placeholder mappings
-- `EncryptorInterface` uses `singleton()` - stateless encryption service
+
+-   `Cloak` instances use `bind()` - fresh instance on every resolution (prevents state pollution)
+-   `StoreInterface` uses `singleton()` - shared storage for placeholder mappings
+-   `EncryptorInterface` uses `singleton()` - stateless encryption service
 
 This architecture prevents issues with filters, callbacks, and other stateful configurations, especially in Laravel Octane environments where state can leak between requests.
 
 **Breaking changes from previous versions:**
-- `EncryptedArrayStorage` class has been removed (now uses core `ArrayStore` with `LaravelEncryptor`)
-- `StoreInterface::put()` no longer accepts `$ttl` parameter (moved to storage implementation constructor)
-- Laravel-specific helper functions removed (now uses core package helpers via resolver)
+
+-   `EncryptedArrayStorage` class has been removed (now uses core `ArrayStore` with `LaravelEncryptor`)
+-   `StoreInterface::put()` no longer accepts `$ttl` parameter (moved to storage implementation constructor)
+-   Laravel-specific helper functions removed (now uses core package helpers via resolver)
 
 The package maintains backward compatibility at the API level—all helpers, facades, and configuration options work the same way for end users.
 
@@ -341,8 +345,8 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [DynamikDev](https://github.com/dynamik-dev)
-- [All Contributors](../../contributors)
+-   [DynamikDev](https://github.com/dynamik-dev)
+-   [All Contributors](../../contributors)
 
 ## License
 
